@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interview Prep</title>
+
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+
+  <!-- Syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #5c7cfa;
+      --accent2: #748ffc;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --green: #43d9ad;
+      --red: #ff6b6b;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent2);
+      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.3px;
+    }
+    .sidebar-logo span { color: var(--muted); font-weight: 400; font-size: 13px; display: block; margin-top: 2px; }
+
+    .nav-section { padding: 16px 12px 8px; }
+    .nav-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.2px; color: var(--muted); padding: 0 8px; margin-bottom: 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 6px; cursor: pointer;
+      font-size: 14px; color: var(--muted); transition: all 0.15s;
+      border: none; background: none; width: 100%; text-align: left;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: rgba(92,124,250,0.15); color: var(--accent2); }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+    /* ── Main ── */
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+
+    .topbar {
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface);
+      position: sticky; top: 0; z-index: 5;
+    }
+    .breadcrumb { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .breadcrumb .current { color: var(--text); font-weight: 500; }
+    .progress-badge {
+      font-size: 12px; background: rgba(92,124,250,0.15); color: var(--accent2);
+      padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(92,124,250,0.3);
+    }
+
+    .content { padding: 40px 48px; max-width: 860px; }
+
+    /* ── Home page ── */
+    .home-view { display: block; }
+    .home-view.hidden { display: none; }
+
+    .home-hero { margin-bottom: 48px; }
+    .home-hero h1 { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+    .home-hero p { color: var(--muted); font-size: 16px; line-height: 1.6; }
+
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+    .section-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.2s;
+    }
+    .section-card:hover {
+      border-color: var(--accent); background: var(--surface2); transform: translateY(-1px);
+    }
+    .section-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .section-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .section-card h2 { font-size: 18px; font-weight: 600; }
+    .section-card p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .section-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+    .topic-tag {
+      font-size: 11px; padding: 3px 8px; border-radius: 4px;
+      background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+    }
+
+    /* ── Article (dynamic) ── */
+    .article-view { display: none; }
+    .article-view.active { display: block; }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--muted); cursor: pointer;
+      padding: 6px 10px; border-radius: 6px; border: none; background: none;
+      transition: all 0.15s; margin-bottom: 28px;
+    }
+    .back-btn:hover { background: var(--surface2); color: var(--text); }
+
+    /* ── Loading state ── */
+    .loading {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--muted); font-size: 14px; padding: 48px 0;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Markdown content styles ── */
+    .md-body h1 {
+      font-size: 28px; font-weight: 700; margin-bottom: 8px; color: var(--text);
+    }
+    .md-body h2 {
+      font-size: 20px; font-weight: 600;
+      margin: 36px 0 14px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border); color: var(--accent2);
+    }
+    .md-body h3 { font-size: 16px; font-weight: 600; margin: 24px 0 10px; color: var(--text); }
+    .md-body h4 { font-size: 14px; font-weight: 600; margin: 18px 0 8px; color: var(--muted); }
+
+    .md-body p { font-size: 15px; line-height: 1.75; color: #cbd5e0; margin-bottom: 14px; }
+
+    .md-body ul, .md-body ol { padding-left: 22px; margin-bottom: 14px; }
+    .md-body li { font-size: 15px; line-height: 1.75; color: #cbd5e0; margin-bottom: 4px; }
+    .md-body li > ul, .md-body li > ol { margin-top: 4px; margin-bottom: 4px; }
+
+    .md-body strong { color: var(--text); font-weight: 600; }
+    .md-body em { color: #a8b2d8; font-style: italic; }
+
+    .md-body a { color: var(--accent2); text-decoration: none; }
+    .md-body a:hover { text-decoration: underline; }
+
+    /* Inline code */
+    .md-body code:not(pre code) {
+      font-family: var(--mono); font-size: 0.875em;
+      background: rgba(255,255,255,0.07); color: #e5c07b;
+      padding: 2px 6px; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Code blocks — override highlight.js background to match theme */
+    .md-body pre {
+      margin: 16px 0 24px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      position: relative;
+    }
+    .md-body pre code.hljs {
+      background: #0d1117 !important;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.65;
+      padding: 20px 22px;
+      border-radius: 10px;
+    }
+    /* Language badge */
+    .md-body pre::before {
+      content: attr(data-lang);
+      position: absolute; top: 10px; right: 12px;
+      font-size: 10px; font-family: var(--mono);
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+
+    /* Tables */
+    .md-body table {
+      width: 100%; border-collapse: collapse;
+      font-size: 14px; margin: 16px 0 24px;
+    }
+    .md-body th {
+      background: var(--surface2); color: var(--muted);
+      text-align: left; padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .md-body td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #cbd5e0; vertical-align: top; }
+    .md-body tr:last-child td { border-bottom: none; }
+    .md-body tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Blockquotes → styled callout */
+    .md-body blockquote {
+      border-left: 3px solid var(--accent);
+      background: rgba(92,124,250,0.08);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0 20px;
+      font-size: 14px; line-height: 1.6; color: #a8b2d8;
+    }
+    .md-body blockquote p { margin: 0; color: #a8b2d8; font-size: 14px; }
+    .md-body blockquote strong { color: var(--text); }
+
+    /* Horizontal rule */
+    .md-body hr {
+      border: none; border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    /* Error state */
+    .load-error {
+      border: 1px solid rgba(255,107,107,0.3);
+      background: rgba(255,107,107,0.06);
+      border-radius: 10px;
+      padding: 24px;
+      color: var(--red);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: 24px;
+    }
+    .load-error code {
+      font-family: var(--mono);
+      background: rgba(255,255,255,0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 220px; }
+      .main { margin-left: 220px; }
+      .content { padding: 24px 20px; }
+      .sections-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    Interview Prep
+    <span>Backend Java · Senior Level</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="showHome(this)">
+      <span class="icon">🏠</span> Home
+    </button>
+    <a class="nav-item" href="quiz.html">
+      <span class="icon">🧪</span> Quick Test
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Java</div>
+    <button class="nav-item" onclick="showArticle('java-core', this)">
+      <span class="icon">☕</span> Core Java
+    </button>
+    <button class="nav-item" onclick="showArticle('java-concurrency', this)">
+      <span class="icon">⚡</span> Concurrency
+    </button>
+    <button class="nav-item" onclick="showArticle('java-jvm', this)">
+      <span class="icon">🔧</span> JVM
+    </button>
+    <button class="nav-item" onclick="showArticle('java-collections', this)">
+      <span class="icon">📦</span> Collections
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Spring</div>
+    <button class="nav-item" onclick="showArticle('spring-core', this)">
+      <span class="icon">🌱</span> Spring Core
+    </button>
+    <button class="nav-item" onclick="showArticle('spring-boot', this)">
+      <span class="icon">🚀</span> Spring Boot
+    </button>
+    <button class="nav-item" onclick="showArticle('spring-data', this)">
+      <span class="icon">🗄️</span> Spring Data
+    </button>
+    <button class="nav-item" onclick="showArticle('spring-security', this)">
+      <span class="icon">🔐</span> Spring Security
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">System Design</div>
+    <button class="nav-item" onclick="showArticle('sd-fundamentals', this)">
+      <span class="icon">🏗️</span> Fundamentals
+    </button>
+    <button class="nav-item" onclick="showArticle('sd-patterns', this)">
+      <span class="icon">🔄</span> Patterns
+    </button>
+    <button class="nav-item" onclick="showArticle('sd-cases', this)">
+      <span class="icon">💡</span> Cases
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">DSA</div>
+    <button class="nav-item" onclick="showArticle('dsa-patterns', this)">
+      <span class="icon">🧩</span> Patterns
+    </button>
+    <button class="nav-item" onclick="showArticle('dsa-complexity', this)">
+      <span class="icon">📊</span> Complexity
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Behavioral</div>
+    <button class="nav-item" onclick="showArticle('beh-star', this)">
+      <span class="icon">⭐</span> STAR Method
+    </button>
+    <button class="nav-item" onclick="showArticle('beh-questions', this)">
+      <span class="icon">💬</span> Questions
+    </button>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span id="breadcrumb-text" class="current">Home</span>
+    </div>
+    <div class="progress-badge">15 topics</div>
+  </div>
+
+  <div class="content">
+
+    <!-- Home -->
+    <div class="home-view" id="home-view">
+      <div class="home-hero">
+        <h1>Interview Prep</h1>
+        <p>Structured preparation for senior backend Java interviews. Covers core language, Spring ecosystem, system design, DSA, and behavioral questions — with detailed explanations and real code examples.</p>
+      </div>
+
+      <div class="sections-grid">
+
+        <div class="section-card" onclick="showArticle('java-core', null)">
+          <div class="section-card-header">
+            <div class="section-icon" style="background:rgba(255,165,0,0.12)">☕</div>
+            <h2>Java</h2>
+          </div>
+          <p>Core language deep-dives: OOP, generics, concurrency, JVM internals, memory model, and collections.</p>
+          <div class="section-topics">
+            <span class="topic-tag">Core</span>
+            <span class="topic-tag">Concurrency</span>
+            <span class="topic-tag">JVM</span>
+            <span class="topic-tag">Collections</span>
+          </div>
+        </div>
+
+        <div class="section-card" onclick="showArticle('spring-core', null)">
+          <div class="section-card-header">
+            <div class="section-icon" style="background:rgba(100,200,100,0.12)">🌱</div>
+            <h2>Spring</h2>
+          </div>
+          <p>Spring Core, Boot autoconfiguration, Data/JPA with Hibernate, and Security with JWT & OAuth2.</p>
+          <div class="section-topics">
+            <span class="topic-tag">IoC / DI</span>
+            <span class="topic-tag">Boot</span>
+            <span class="topic-tag">JPA</span>
+            <span class="topic-tag">Security</span>
+          </div>
+        </div>
+
+        <div class="section-card" onclick="showArticle('sd-fundamentals', null)">
+          <div class="section-card-header">
+            <div class="section-icon" style="background:rgba(92,124,250,0.12)">🏗️</div>
+            <h2>System Design</h2>
+          </div>
+          <p>CAP theorem, consistency models, distributed patterns, and full design walkthroughs of real systems.</p>
+          <div class="section-topics">
+            <span class="topic-tag">CAP</span>
+            <span class="topic-tag">Caching</span>
+            <span class="topic-tag">Queues</span>
+            <span class="topic-tag">Cases</span>
+          </div>
+        </div>
+
+        <div class="section-card" onclick="showArticle('dsa-patterns', null)">
+          <div class="section-card-header">
+            <div class="section-icon" style="background:rgba(67,217,173,0.12)">🧩</div>
+            <h2>DSA</h2>
+          </div>
+          <p>Algorithm patterns used in coding interviews — sliding window, BFS/DFS, DP — with Java examples.</p>
+          <div class="section-topics">
+            <span class="topic-tag">Patterns</span>
+            <span class="topic-tag">Complexity</span>
+            <span class="topic-tag">Big O</span>
+          </div>
+        </div>
+
+        <div class="section-card" onclick="showArticle('beh-questions', null)">
+          <div class="section-card-header">
+            <div class="section-icon" style="background:rgba(255,107,107,0.12)">💬</div>
+            <h2>Behavioral</h2>
+          </div>
+          <p>STAR method framework and curated senior-level behavioral questions with example answer structures.</p>
+          <div class="section-topics">
+            <span class="topic-tag">STAR</span>
+            <span class="topic-tag">Leadership</span>
+            <span class="topic-tag">Conflict</span>
+            <span class="topic-tag">Growth</span>
+          </div>
+        </div>
+
+        <div class="section-card" onclick="window.location.href='quiz.html'" style="border-color:rgba(92,124,250,0.3);">
+          <div class="section-card-header">
+            <div class="section-icon" style="background:rgba(92,124,250,0.15)">🧪</div>
+            <h2>Quick Test</h2>
+          </div>
+          <p>Test yourself on all topics. Reveal answers and rate yourself — tracks your score with a results screen.</p>
+          <div class="section-topics">
+            <span class="topic-tag">15 questions</span>
+            <span class="topic-tag">Self-rated</span>
+            <span class="topic-tag">Keyboard shortcuts</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dynamic article area -->
+    <div class="article-view" id="article-view"></div>
+
+  </div>
+</main>
+
+<script>
+  const ROUTES = {
+    'java-core':        'java/core.md',
+    'java-concurrency': 'java/concurrency.md',
+    'java-jvm':         'java/jvm.md',
+    'java-collections': 'java/collections.md',
+    'spring-core':      'spring/core.md',
+    'spring-boot':      'spring/boot.md',
+    'spring-data':      'spring/data.md',
+    'spring-security':  'spring/security.md',
+    'sd-fundamentals':  'system-design/fundamentals.md',
+    'sd-patterns':      'system-design/patterns.md',
+    'sd-cases':         'system-design/cases.md',
+    'dsa-patterns':     'dsa/patterns.md',
+    'dsa-complexity':   'dsa/complexity.md',
+    'beh-star':         'behavioral/star-method.md',
+    'beh-questions':    'behavioral/questions.md',
+  };
+
+  const homeView    = document.getElementById('home-view');
+  const articleView = document.getElementById('article-view');
+  const breadcrumb  = document.getElementById('breadcrumb-text');
+
+  marked.setOptions({ breaks: false, gfm: true });
+
+  const articleCache = new Map();
+
+  function setActiveNav(btn, id) {
+    const items = document.querySelectorAll('.nav-item');
+    items.forEach(b => b.classList.remove('active'));
+    if (btn) {
+      btn.classList.add('active');
+    } else if (id) {
+      items.forEach(b => {
+        if (b.getAttribute('onclick')?.includes(`'${id}'`)) b.classList.add('active');
+      });
+    } else {
+      items[0].classList.add('active');
+    }
+  }
+
+  function showHome(btn) {
+    homeView.classList.remove('hidden');
+    articleView.classList.remove('active');
+    breadcrumb.textContent = 'Home';
+    setActiveNav(btn, null);
+    window.scrollTo(0, 0);
+  }
+
+  async function showArticle(id, btn) {
+    const path = ROUTES[id];
+    if (!path) return;
+
+    homeView.classList.add('hidden');
+    articleView.classList.add('active');
+    setActiveNav(btn, id);
+
+    articleView.innerHTML = `
+      <button class="back-btn" onclick="showHome(null)">← Back</button>
+      <div class="loading"><div class="spinner"></div> Loading…</div>
+    `;
+    window.scrollTo(0, 0);
+
+    try {
+      if (!articleCache.has(id)) {
+        const res = await fetch(path);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        articleCache.set(id, marked.parse(await res.text()));
+      }
+
+      articleView.innerHTML = `
+        <button class="back-btn" onclick="showHome(null)">← Back</button>
+        <div class="md-body">${articleCache.get(id)}</div>
+      `;
+
+      articleView.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
+        const lang = block.className.replace('hljs language-', '').replace('hljs', '').trim();
+        if (lang) block.parentElement.setAttribute('data-lang', lang);
+      });
+
+      const h1 = articleView.querySelector('h1');
+      breadcrumb.textContent = h1 ? h1.textContent : id;
+
+    } catch (err) {
+      articleView.innerHTML = `
+        <button class="back-btn" onclick="showHome(null)">← Back</button>
+        <div class="load-error">
+          <strong>Could not load content.</strong><br><br>
+          The site needs to be served over HTTP — open a local server:<br><br>
+          <code>cd ~/workspace/interview-prep && python3 -m http.server 8080</code><br><br>
+          Then open <code>http://localhost:8080</code>
+        </div>
+      `;
+    }
+  }
+</script>
+</body>
+</html>

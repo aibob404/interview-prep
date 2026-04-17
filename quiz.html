@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quick Test — Interview Prep</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #5c7cfa;
+      --accent2: #748ffc;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --green: #43d9ad;
+      --red: #ff6b6b;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .topnav {
+      width: 100%;
+      padding: 14px 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topnav-logo { font-size: 16px; font-weight: 700; color: var(--accent2); text-decoration: none; }
+    .topnav-back {
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .topnav-back:hover { border-color: var(--accent); color: var(--accent2); }
+
+    .page {
+      width: 100%; max-width: 700px;
+      padding: 48px 24px 80px;
+      display: flex; flex-direction: column; gap: 32px;
+    }
+
+    .page-title h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+    .page-title p { font-size: 14px; color: var(--muted); }
+
+    /* Loading */
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; padding: 64px 0; color: var(--muted); font-size: 14px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Filter row */
+    .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      font-size: 13px; padding: 7px 16px; border-radius: 20px;
+      border: 1px solid var(--border); background: none; color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent2); }
+    .filter-btn.active {
+      background: rgba(92,124,250,0.15); border-color: var(--accent);
+      color: var(--accent2); font-weight: 600;
+    }
+    .filter-btn .count {
+      font-size: 11px; opacity: 0.7; margin-left: 4px;
+    }
+
+    /* Quiz card */
+    .quiz-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 36px 40px;
+      display: flex; flex-direction: column; min-height: 360px;
+      transition: border-color 0.2s;
+    }
+    .quiz-card.correct-flash { border-color: var(--green); }
+    .quiz-card.missed-flash  { border-color: var(--red); }
+
+    .progress-wrap {
+      background: var(--surface2); border-radius: 4px;
+      height: 5px; margin-bottom: 28px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 4px; transition: width 0.35s ease;
+    }
+
+    .quiz-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .quiz-counter { font-size: 13px; color: var(--muted); }
+    .score-live { display: flex; gap: 16px; font-size: 13px; font-weight: 600; }
+    .score-c { color: var(--green); }
+    .score-m { color: var(--red); }
+
+    .card-tag {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      padding: 3px 9px; border-radius: 4px; margin-bottom: 16px;
+    }
+
+    .quiz-q {
+      font-size: 19px; font-weight: 600; line-height: 1.55;
+      color: var(--text); flex: 1; margin-bottom: 28px;
+    }
+    .quiz-q code {
+      font-family: var(--mono); font-size: 0.88em;
+      background: rgba(255,255,255,0.07); color: #e5c07b;
+      padding: 2px 6px; border-radius: 4px;
+    }
+
+    .quiz-answer {
+      display: none;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px 22px; margin-bottom: 28px;
+      font-size: 15px; line-height: 1.75; color: #cbd5e0;
+      animation: fadeUp 0.2s ease;
+    }
+    .quiz-answer.visible { display: block; }
+    .quiz-answer code {
+      font-family: var(--mono); font-size: 0.875em;
+      background: rgba(255,255,255,0.07); color: #e5c07b;
+      padding: 2px 6px; border-radius: 4px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .quiz-actions { display: flex; gap: 10px; margin-top: auto; }
+
+    .btn {
+      padding: 11px 24px; border-radius: 9px; font-size: 15px;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+    .btn-show { background: var(--surface2); border-color: var(--border); color: var(--text); }
+    .btn-show:hover { border-color: var(--accent); color: var(--accent2); }
+
+    .btn-correct {
+      background: rgba(67,217,173,0.1); border-color: rgba(67,217,173,0.4);
+      color: var(--green); display: none;
+    }
+    .btn-correct:hover { background: rgba(67,217,173,0.2); }
+    .btn-correct.visible { display: inline-block; }
+
+    .btn-missed {
+      background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.35);
+      color: var(--red); display: none;
+    }
+    .btn-missed:hover { background: rgba(255,107,107,0.2); }
+    .btn-missed.visible { display: inline-block; }
+
+    /* Results */
+    .results {
+      display: none; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; flex: 1;
+    }
+    .results.visible { display: flex; }
+    .result-emoji { font-size: 56px; margin-bottom: 16px; }
+    .result-pct { font-size: 72px; font-weight: 800; color: var(--accent2); line-height: 1; margin-bottom: 6px; }
+    .result-label { font-size: 16px; color: var(--muted); margin-bottom: 28px; }
+    .result-breakdown { display: flex; gap: 40px; margin-bottom: 36px; }
+    .breakdown-item { font-size: 16px; }
+    .btn-restart {
+      padding: 13px 36px; border-radius: 10px; border: none;
+      background: var(--accent); color: #fff; font-size: 15px;
+      font-weight: 700; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-restart:hover { background: var(--accent2); transform: translateY(-1px); }
+
+    .kbd-hint { text-align: center; font-size: 12px; color: var(--muted); margin-top: -8px; }
+    .kbd {
+      display: inline-block; border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-family: var(--mono);
+      font-size: 11px; color: var(--muted); background: var(--surface2);
+    }
+
+    .source-note {
+      text-align: center; font-size: 12px; color: var(--muted);
+      border-top: 1px solid var(--border); padding-top: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .quiz-card { padding: 24px 20px; }
+      .quiz-q { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html">Interview Prep</a>
+  <a class="topnav-back" href="index.html">← Back to notes</a>
+</nav>
+
+<div class="page">
+
+  <div class="page-title">
+    <h1>Quick Test</h1>
+    <p id="subtitle">Loading questions from notes…</p>
+  </div>
+
+  <div id="loading-state" class="loading-state">
+    <div class="spinner"></div>
+    Parsing markdown files…
+  </div>
+
+  <div id="quiz-ui" style="display:none; flex-direction:column; gap:32px;">
+
+    <div class="filter-row" id="filter-row"></div>
+
+    <div class="quiz-card" id="quiz-card">
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="quiz-meta">
+        <span class="quiz-counter" id="quiz-counter"></span>
+        <div class="score-live">
+          <span class="score-c" id="score-c">✓ 0</span>
+          <span class="score-m" id="score-m">✗ 0</span>
+        </div>
+      </div>
+
+      <div id="q-view" style="display:flex;flex-direction:column;flex:1;">
+        <span class="card-tag" id="q-tag"></span>
+        <div class="quiz-q" id="q-text"></div>
+        <div class="quiz-answer" id="q-answer"></div>
+        <div class="quiz-actions">
+          <button class="btn btn-show" id="btn-show" onclick="reveal()">Show Answer</button>
+          <button class="btn btn-correct" id="btn-correct" onclick="mark(true)">✓ Got it</button>
+          <button class="btn btn-missed" id="btn-missed" onclick="mark(false)">✗ Missed it</button>
+        </div>
+      </div>
+
+      <div class="results" id="results">
+        <div class="result-emoji" id="result-emoji"></div>
+        <div class="result-pct" id="result-pct"></div>
+        <div class="result-label" id="result-label"></div>
+        <div class="result-breakdown">
+          <div class="breakdown-item"><span class="score-c" id="res-c"></span> correct</div>
+          <div class="breakdown-item"><span class="score-m" id="res-m"></span> missed</div>
+        </div>
+        <button class="btn-restart" onclick="restartQuiz()">Try Again</button>
+      </div>
+    </div>
+
+    <p class="kbd-hint">
+      <kbd class="kbd">Space</kbd> show answer &nbsp;·&nbsp;
+      <kbd class="kbd">1</kbd> got it &nbsp;·&nbsp;
+      <kbd class="kbd">2</kbd> missed it
+    </p>
+
+    <p class="source-note" id="source-note"></p>
+  </div>
+
+</div>
+
+<script>
+  const SOURCES = [
+    { path: 'java/core.md',                  cat: 'java',       label: 'Java' },
+    { path: 'java/concurrency.md',           cat: 'java',       label: 'Java' },
+    { path: 'java/jvm.md',                   cat: 'java',       label: 'Java' },
+    { path: 'java/collections.md',           cat: 'java',       label: 'Java' },
+    { path: 'spring/core.md',                cat: 'spring',     label: 'Spring' },
+    { path: 'spring/boot.md',                cat: 'spring',     label: 'Spring' },
+    { path: 'spring/data.md',                cat: 'spring',     label: 'Spring' },
+    { path: 'spring/security.md',            cat: 'spring',     label: 'Spring' },
+    { path: 'system-design/fundamentals.md', cat: 'design',     label: 'Design' },
+    { path: 'system-design/patterns.md',     cat: 'design',     label: 'Design' },
+    { path: 'dsa/patterns.md',               cat: 'dsa',        label: 'DSA' },
+    { path: 'dsa/complexity.md',             cat: 'dsa',        label: 'DSA' },
+    { path: 'behavioral/questions.md',       cat: 'behavioral', label: 'Behavioral' },
+  ];
+
+  const TAG_STYLES = {
+    java:       'background:rgba(255,165,0,0.12);color:#ffa500;',
+    spring:     'background:rgba(100,200,100,0.12);color:#6acc6a;',
+    design:     'background:rgba(92,124,250,0.12);color:#748ffc;',
+    dsa:        'background:rgba(67,217,173,0.12);color:#43d9ad;',
+    behavioral: 'background:rgba(255,107,107,0.12);color:#ff6b6b;',
+  };
+
+  function parseQA(markdown, cat, label) {
+    const cards = [];
+    const lines = markdown.split('\n');
+    let inQASection = false;
+    let headerSeen  = false;
+
+    for (const raw of lines) {
+      const line = raw.trim();
+
+      if (/^#{1,4}\s+.*(?:interview questions|quick reference)/i.test(line)) {
+        inQASection = true; headerSeen = false; continue;
+      }
+      if (/^#{1,4}\s+/.test(line) && inQASection) { inQASection = false; continue; }
+      if (!inQASection || !line) continue;
+
+      if (/^\|[\s\-|:]+\|$/.test(line)) { headerSeen = true; continue; }
+
+      if (line.startsWith('|') && headerSeen) {
+        const cols = line.split('|').map(c => c.trim()).filter(c => c.length > 0);
+        if (cols.length >= 2 && !/^question$/i.test(cols[0]) && cols[0] && cols[1])
+          cards.push({ q: cols[0], a: cols[1], cat, label });
+      }
+    }
+    return cards;
+  }
+
+  let ALL_CARDS = [];
+  let activeCategory = 'all';
+  let deck = [], idx = 0, correct = 0, missed = 0, revealed = false;
+
+  async function loadAllCards() {
+    const results = await Promise.allSettled(
+      SOURCES.map(async s => {
+        const res = await fetch(s.path);
+        if (!res.ok) throw new Error(s.path);
+        return parseQA(await res.text(), s.cat, s.label);
+      })
+    );
+    ALL_CARDS = results.filter(r => r.status === 'fulfilled').flatMap(r => r.value);
+  }
+
+  const EL = {
+    counter:   document.getElementById('quiz-counter'),
+    progress:  document.getElementById('progress-bar'),
+    scoreC:    document.getElementById('score-c'),
+    scoreM:    document.getElementById('score-m'),
+    tag:       document.getElementById('q-tag'),
+    qText:     document.getElementById('q-text'),
+    answer:    document.getElementById('q-answer'),
+    btnShow:   document.getElementById('btn-show'),
+    btnOk:     document.getElementById('btn-correct'),
+    btnMiss:   document.getElementById('btn-missed'),
+    card:      document.getElementById('quiz-card'),
+    qView:     document.getElementById('q-view'),
+    results:   document.getElementById('results'),
+    resEmoji:  document.getElementById('result-emoji'),
+    resPct:    document.getElementById('result-pct'),
+    resLabel:  document.getElementById('result-label'),
+    resC:      document.getElementById('res-c'),
+    resM:      document.getElementById('res-m'),
+  };
+
+  function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+  function buildFilterRow() {
+    const counts = {};
+    for (const c of ALL_CARDS) counts[c.cat] = (counts[c.cat] || 0) + 1;
+
+    const row = document.getElementById('filter-row');
+    const seen = new Set();
+    const cats = [
+      { id: 'all', label: 'All' },
+      ...SOURCES.filter(s => !seen.has(s.cat) && seen.add(s.cat)).map(s => ({ id: s.cat, label: s.label })),
+    ];
+
+    row.innerHTML = cats.map(c => {
+      const n = c.id === 'all' ? ALL_CARDS.length : (counts[c.id] || 0);
+      return `<button class="filter-btn${c.id === 'all' ? ' active' : ''}"
+                      onclick="startQuiz('${c.id}', this)">
+                ${c.label} <span class="count">${n}</span>
+              </button>`;
+    }).join('');
+  }
+
+  function startQuiz(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    activeCategory = cat;
+    deck = shuffle(cat === 'all' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === cat));
+    idx = 0; correct = 0; missed = 0; revealed = false;
+    EL.results.classList.remove('visible');
+    EL.qView.style.display = 'flex';
+    render();
+  }
+
+  function render() {
+    const card  = deck[idx];
+    const total = deck.length;
+    revealed = false;
+
+    EL.counter.textContent       = `${idx + 1} / ${total}`;
+    EL.progress.style.width      = `${(idx / total) * 100}%`;
+    EL.scoreC.textContent        = `✓ ${correct}`;
+    EL.scoreM.textContent        = `✗ ${missed}`;
+    EL.tag.textContent           = card.label;
+    EL.tag.style.cssText         = TAG_STYLES[card.cat] || '';
+    EL.qText.innerHTML           = renderInline(card.q);
+    EL.answer.innerHTML          = renderInline(card.a);
+    EL.answer.classList.remove('visible');
+    EL.btnShow.style.display     = 'inline-block';
+    EL.btnOk.classList.remove('visible');
+    EL.btnMiss.classList.remove('visible');
+    EL.card.classList.remove('correct-flash', 'missed-flash');
+  }
+
+  function renderInline(text) {
+    return text
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  }
+
+  function reveal() {
+    if (revealed) return;
+    revealed = true;
+    EL.answer.classList.add('visible');
+    EL.btnShow.style.display = 'none';
+    EL.btnOk.classList.add('visible');
+    EL.btnMiss.classList.add('visible');
+  }
+
+  function mark(isCorrect) {
+    EL.card.classList.add(isCorrect ? 'correct-flash' : 'missed-flash');
+    if (isCorrect) correct++; else missed++;
+    idx++;
+    setTimeout(() => { if (idx >= deck.length) showResults(); else render(); }, 250);
+  }
+
+  function showResults() {
+    EL.qView.style.display = 'none';
+    EL.progress.style.width = '100%';
+    const total = deck.length;
+    const pct = Math.round((correct / total) * 100);
+    EL.resEmoji.textContent = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📚';
+    EL.resPct.textContent   = `${pct}%`;
+    EL.resLabel.textContent = pct >= 80 ? "Great job! You're ready." : pct >= 50 ? 'Good — review the missed ones.' : "Keep studying — you'll get there.";
+    EL.resC.textContent = correct;
+    EL.resM.textContent = missed;
+    EL.results.classList.add('visible');
+    EL.card.classList.remove('correct-flash', 'missed-flash');
+  }
+
+  function restartQuiz() { startQuiz(activeCategory, null); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!revealed) reveal(); }
+    else if (e.key === '1') { if (revealed) mark(true); }
+    else if (e.key === '2') { if (revealed) mark(false); }
+  });
+
+  (async () => {
+    try {
+      await loadAllCards();
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('quiz-ui').style.display = 'flex';
+      document.getElementById('subtitle').textContent =
+        'Read the question, think of your answer, reveal it, then rate yourself honestly.';
+      document.getElementById('source-note').textContent =
+        `${ALL_CARDS.length} questions parsed from ${SOURCES.length} markdown files`;
+
+      buildFilterRow();
+      startQuiz('all', null);
+
+    } catch (err) {
+      document.getElementById('loading-state').innerHTML = `
+        <div style="color:var(--red);font-size:14px;line-height:1.8;text-align:center;">
+          <strong>Could not load questions.</strong><br><br>
+          Serve the site over HTTP:<br>
+          <code style="font-family:monospace;background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:4px;">
+            cd ~/workspace/interview-prep && python3 -m http.server 8080
+          </code><br><br>
+          Then open <strong>http://localhost:8080/quiz.html</strong>
+        </div>`;
+    }
+  })();
+</script>
+</body>
+</html>
