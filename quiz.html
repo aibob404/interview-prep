@@ -204,8 +204,22 @@
     }
 
     @media (max-width: 600px) {
-      .quiz-card { padding: 24px 20px; }
-      .quiz-q { font-size: 17px; }
+      .topnav { padding: 12px 16px; }
+      .page { padding: 24px 16px 60px; gap: 20px; }
+
+      .quiz-card { padding: 20px 16px; min-height: 300px; }
+      .quiz-q { font-size: 16px; margin-bottom: 20px; }
+
+      .quiz-actions { flex-wrap: wrap; gap: 8px; }
+      .btn { padding: 10px 16px; font-size: 14px; flex: 1; min-width: 120px; }
+
+      .filter-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+      .filter-btn { flex-shrink: 0; }
+
+      .result-pct { font-size: 52px; }
+      .result-breakdown { gap: 24px; }
+
+      .kbd-hint { display: none; }
     }
   </style>
 </head>

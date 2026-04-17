@@ -269,18 +269,52 @@
       color: var(--text);
     }
 
+    /* ── Mobile menu button ── */
+    .menu-btn {
+      display: none;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px;
+      padding: 6px 10px; cursor: pointer; font-size: 18px;
+      line-height: 1;
+    }
+
+    /* ── Overlay ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9;
+    }
+    .sidebar-overlay.visible { display: block; }
+
     @media (max-width: 768px) {
-      .sidebar { width: 220px; }
-      .main { margin-left: 220px; }
-      .content { padding: 24px 20px; }
+      .menu-btn { display: block; }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        width: 260px;
+      }
+      .sidebar.open { transform: translateX(0); }
+
+      .main { margin-left: 0; }
+
+      .topbar { padding: 12px 16px; }
+
+      .content { padding: 24px 16px; }
+
       .sections-grid { grid-template-columns: 1fr; }
+
+      .home-hero h1 { font-size: 24px; }
     }
   </style>
 </head>
 <body>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <!-- Sidebar -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     Interview Prep
     <span>Backend Java · Senior Level</span>
@@ -365,8 +399,11 @@
 <!-- Main -->
 <main class="main">
   <div class="topbar">
-    <div class="breadcrumb">
-      <span id="breadcrumb-text" class="current">Home</span>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="breadcrumb">
+        <span id="breadcrumb-text" class="current">Home</span>
+      </div>
     </div>
     <div class="progress-badge">15 topics</div>
   </div>
@@ -474,6 +511,18 @@
 </main>
 
 <script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+  }
+
   const ROUTES = {
     'java-core':        'java/core.md',
     'java-concurrency': 'java/concurrency.md',
@@ -519,6 +568,7 @@
     articleView.classList.remove('active');
     breadcrumb.textContent = 'Home';
     setActiveNav(btn, null);
+    closeSidebar();
     window.scrollTo(0, 0);
   }
 
@@ -529,6 +579,7 @@
     homeView.classList.add('hidden');
     articleView.classList.add('active');
     setActiveNav(btn, id);
+    closeSidebar();
 
     articleView.innerHTML = `
       <button class="back-btn" onclick="showHome(null)">← Back</button>
