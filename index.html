@@ -96,7 +96,7 @@
       padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(92,124,250,0.3);
     }
 
-    .content { padding: 40px 48px; max-width: 860px; }
+    .content { padding: 40px 48px; max-width: 1100px; margin: 0 auto; width: 100%; }
 
     /* ── Home page ── */
     .home-view { display: block; }
@@ -287,6 +287,19 @@
     }
     .sidebar-overlay.visible { display: block; }
 
+    .cta-card {
+      grid-column: 1/-1;
+      border-color: var(--accent);
+      background: linear-gradient(135deg,rgba(92,124,250,0.12),rgba(116,143,252,0.06));
+      display: flex; align-items: center; gap: 28px; padding: 28px 32px;
+    }
+    .cta-icon {
+      background: rgba(92,124,250,0.2);
+      width: 56px; height: 56px; font-size: 28px;
+      border-radius: 14px; flex-shrink: 0;
+    }
+    .cta-arrow { font-size: 24px; color: var(--accent); flex-shrink: 0; }
+
     @media (max-width: 768px) {
       .menu-btn { display: block; }
 
@@ -306,6 +319,10 @@
       .sections-grid { grid-template-columns: 1fr; }
 
       .home-hero h1 { font-size: 24px; }
+
+      .cta-card { padding: 20px 16px; gap: 16px; }
+      .cta-icon { width: 44px; height: 44px; font-size: 22px; }
+      .cta-arrow { display: none; }
     }
   </style>
 </head>
@@ -416,18 +433,32 @@
     <!-- Home -->
     <div class="home-view" id="home-view">
       <div class="home-hero">
-        <h1>Interview Prep</h1>
-        <p>Structured preparation for senior backend Java interviews. Covers core language, Spring ecosystem, system design, DSA, and behavioral questions — with detailed explanations and real code examples.</p>
+        <h1>Ready for your interview?</h1>
+        <p>Everything you need for a senior Java backend interview — in one place. Jump straight into the quiz to check where you stand, or pick a topic to brush up on specifics.</p>
       </div>
 
       <div class="sections-grid">
+
+        <div class="section-card cta-card" onclick="window.location.href='quiz.html'">
+          <div class="section-icon cta-icon">🧪</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <h2 style="font-size:20px;color:var(--accent2);">Quick Test</h2>
+              <span style="font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">START HERE</span>
+            </div>
+            <p style="margin:0;font-size:14px;">Flash cards across all topics. Read the question, think of your answer, reveal it, rate yourself. Great for daily practice.</p>
+          </div>
+          <div class="cta-arrow">→</div>
+        </div>
+
+        <div style="grid-column:1/-1;border-top:1px solid var(--border);margin:4px 0;"></div>
 
         <div class="section-card" onclick="showArticle('java-core', null)">
           <div class="section-card-header">
             <div class="section-icon" style="background:rgba(255,165,0,0.12)">☕</div>
             <h2>Java</h2>
           </div>
-          <p>Core language deep-dives: OOP, generics, concurrency, JVM internals, memory model, and collections.</p>
+          <p>OOP, generics, concurrency primitives, JVM memory model, and collections — the foundation interviewers always probe.</p>
           <div class="section-topics">
             <span class="topic-tag">Core</span>
             <span class="topic-tag">Concurrency</span>
@@ -441,7 +472,7 @@
             <div class="section-icon" style="background:rgba(100,200,100,0.12)">🌱</div>
             <h2>Spring</h2>
           </div>
-          <p>Spring Core, Boot autoconfiguration, Data/JPA with Hibernate, and Security with JWT & OAuth2.</p>
+          <p>IoC, AOP, Boot autoconfiguration, JPA transactions, and security filters — what every Java backend role expects.</p>
           <div class="section-topics">
             <span class="topic-tag">IoC / DI</span>
             <span class="topic-tag">Boot</span>
@@ -455,7 +486,7 @@
             <div class="section-icon" style="background:rgba(92,124,250,0.12)">🏗️</div>
             <h2>System Design</h2>
           </div>
-          <p>CAP theorem, consistency models, distributed patterns, and full design walkthroughs of real systems.</p>
+          <p>CAP theorem, consistency models, caching strategies, queues, and real system walkthroughs for senior-level rounds.</p>
           <div class="section-topics">
             <span class="topic-tag">CAP</span>
             <span class="topic-tag">Caching</span>
@@ -469,7 +500,7 @@
             <div class="section-icon" style="background:rgba(67,217,173,0.12)">🧩</div>
             <h2>DSA</h2>
           </div>
-          <p>Algorithm patterns used in coding interviews — sliding window, BFS/DFS, DP — with Java examples.</p>
+          <p>The patterns that come up again and again — sliding window, BFS/DFS, dynamic programming — with Java code and Big O breakdowns.</p>
           <div class="section-topics">
             <span class="topic-tag">Patterns</span>
             <span class="topic-tag">Complexity</span>
@@ -482,25 +513,12 @@
             <div class="section-icon" style="background:rgba(255,107,107,0.12)">💬</div>
             <h2>Behavioral</h2>
           </div>
-          <p>STAR method framework and curated senior-level behavioral questions with example answer structures.</p>
+          <p>How to tell your stories well. STAR structure, common senior-level questions, and what interviewers are actually listening for.</p>
           <div class="section-topics">
             <span class="topic-tag">STAR</span>
             <span class="topic-tag">Leadership</span>
             <span class="topic-tag">Conflict</span>
             <span class="topic-tag">Growth</span>
-          </div>
-        </div>
-
-        <div class="section-card" onclick="window.location.href='quiz.html'" style="border-color:rgba(92,124,250,0.3);">
-          <div class="section-card-header">
-            <div class="section-icon" style="background:rgba(92,124,250,0.15)">🧪</div>
-            <h2>Quick Test</h2>
-          </div>
-          <p>Test yourself on all topics. Reveal answers and rate yourself — tracks your score with a results screen.</p>
-          <div class="section-topics">
-            <span class="topic-tag">15 questions</span>
-            <span class="topic-tag">Self-rated</span>
-            <span class="topic-tag">Keyboard shortcuts</span>
           </div>
         </div>
 
